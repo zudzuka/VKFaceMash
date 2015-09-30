@@ -6,34 +6,15 @@ import math
 import sys
 
 from PyQt4 import QtGui, QtCore
+import functions
 
-
-class Person(object):
+class Person():
     elo = 0                     # Elo rating
     group = 0                   # Matchmaking group
     k = 40                      # Initial coefficient
     battles = 0                 # Batlles was played
 
-def unpickle():
-    data = open('data.pkl', 'rb')
-    self = pickle.load(data)
-    data.close()
-    return self
 
-def save(self):
-    data = open('data.pkl', 'wb')
-    pickle.dump(self, data)
-    data.close()
-
-def buttle(w, l):
-    we=w.elo
-    le=l.elo
-    w.elo=we+w.k*(1-1/(1+pow(10, (le-we)/400)))
-    l.elo=we+w.k*(1-1/(0+pow(10, (le-we)/400)))
-    w.battles=w.battles+1
-    l.battles=l.battles+1
-    if w.battles>30: w.k=20
-    if l.battles>30: l.k=20
 
 class MainWindow(QtGui.QMainWindow):     
     def __init__(self, parent=None):#параметры по умолчанию класса MainWindow
@@ -60,6 +41,7 @@ class MainWindow(QtGui.QMainWindow):
         #определение переменных кнопок, редакторов, сеток.
         self.rButton = QtGui.QPushButton("Right")
         self.lButton = QtGui.QPushButton("Left")
+        self.dButton = QtGui.QPushButton("Download")
 
         self.label1 = QtGui.QLabel()
         self.label2 = QtGui.QLabel()
@@ -77,37 +59,42 @@ class MainWindow(QtGui.QMainWindow):
         grid.addWidget(self.label2, 0, 1)
         grid.addWidget(self.lButton, 1, 0)
         grid.addWidget(self.rButton, 1, 1)
-        grid.addWidget(self.textEdit, 0, 2, 2, 1)
+        grid.addWidget(self.dButton, 1, 2)
+        grid.addWidget(self.textEdit, 0, 2)
 
 
-
-        self.person=unpickle()
+        self.person=functions.unpickle()
         #self.person=self.person[:10]
-        self.person=self.person
-        self.rButton.clicked.connect(self.RButton)
-        self.lButton.clicked.connect(self.LButton)
+        self.rButton.clicked.connect(self.rbutton)
+        self.lButton.clicked.connect(self.lbutton)
+        self.dButton.clicked.connect(self.dbutton)
         #self.person[13].elo=200
         self.update(2)
         self.setGeometry(300, 300, 250, 150)
         #self.connect(self.rButton, QtCore.SIGNAL('clicked(int)'), self.update(1))
 
-    def RButton(self):
+    def rbutton(self):
         self.update(0)
 
-    def LButton(self):
+    def lbutton(self):
         self.update(1)  
+
+    def dbutton(self):
+        functions.download()
+        self.person=functions.unpickle()
+        self.update(2)
 
     def update(self, a):
         #Новый рейтинг предыдущих
         if a == 1: 
-            buttle(self.left, self.right)
+            functions.buttle(self.left, self.right)
             self.person[self.nleft]=self.left
             self.person[self.nright]=self.right
         if a == 0: 
-            buttle(self.right, self.left)
+            functions.buttle(self.right, self.left)
             self.person[self.nleft]=self.left
             self.person[self.nright]=self.right
-        #сортируем
+        #сортируем`
         self.person=sorted(self.person, key=lambda person: person.elo)
 
         #матчмэйкинг
@@ -144,11 +131,19 @@ class MainWindow(QtGui.QMainWindow):
         reply = QtGui.QMessageBox.question(self, 'Message',
             "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         if reply == QtGui.QMessageBox.Yes:
-            save(self.person)
+            functions.save(self.person)
             event.accept()
         else:
             event.ignore()
 
+    def showEvent(self, event):
+        reply = QtGui.QMessageBox.question(self, 'Message',
+            "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            functions.save(self.person)
+            event.accept()
+        else:
+            event.ignore()
 
 app = QtGui.QApplication(sys.argv)
 main = MainWindow()
