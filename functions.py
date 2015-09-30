@@ -17,6 +17,8 @@ class Person():
     group = 0                   # Matchmaking group
     k = 40                      # Initial coefficient
     battles = 0                 # Batlles was played
+
+
 vkapi = vk.API('5073025', login, password, access_token=token)
 
 def unpickle(): 
