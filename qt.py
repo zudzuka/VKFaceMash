@@ -14,6 +14,10 @@ class Person():
     k = 40                      # Initial coefficient
     battles = 0                 # Batlles was played
 
+class LoginWindow(QtGui.QDialog):
+    def __init__(self):
+        QtGui.QDialog().__init__(self)
+
 
 
 class MainWindow(QtGui.QMainWindow):     
@@ -136,14 +140,13 @@ class MainWindow(QtGui.QMainWindow):
         else:
             event.ignore()
 
+
     def showEvent(self, event):
-        reply = QtGui.QMessageBox.question(self, 'Message',
-            "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
-            functions.save(self.person)
-            event.accept()
-        else:
-            event.ignore()
+        reply = QtGui.QDialog()
+        Login_Dialog.setObjectName("Login_Dialog")
+        Login_Dialog.resize(285, 134)
+        reply.show()
+
 
 app = QtGui.QApplication(sys.argv)
 main = MainWindow()
